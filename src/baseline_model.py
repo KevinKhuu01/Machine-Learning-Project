@@ -23,6 +23,3 @@ y_pred = linear_model.predict(X_train)
 mae = mean_absolute_error(y_train, y_pred)
 rmse = np.sqrt(mean_squared_error(y_train, y_pred))
 
-print("Results of Linear Regression Baseline Model Calculation: \n")
-print(f"Linear Regression MAE: {mae:.3f}")
-print(f"Linear Regression RMSE: {rmse:.3f}")

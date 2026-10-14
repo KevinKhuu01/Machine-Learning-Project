@@ -10,6 +10,4 @@ y_pred_naive = X_test["volume_15min"].to_numpy()  # Use the last observed volume
 mae_naive = mean_absolute_error(y_test, y_pred_naive)
 rmse_naive = np.sqrt(mean_squared_error(y_test, y_pred_naive)) 
 
-print("Results of Naive Benchmark Calculation: \n")
-print(f"Naive Benchmark MAE: {mae_naive:.3f}")
-print(f"Naive Benchmark RMSE: {rmse_naive:.3f}")
+
