@@ -1,6 +1,9 @@
 # PyCharm / IntelliJ
 .idea/
 
+#VS Code    
+.vscode/
+
 # Python
 __pycache__/
 *.pyc
