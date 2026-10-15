@@ -18,8 +18,8 @@ X_train, X_valid, X_test, y_train, y_valid, y_test = get_model_data()
 
 linear_model.fit(X_train, y_train)
 
-y_pred = linear_model.predict(X_train)
+y_pred = linear_model.predict(X_valid)
 
-mae = mean_absolute_error(y_train, y_pred)
-rmse = np.sqrt(mean_squared_error(y_train, y_pred))
+mae = mean_absolute_error(y_valid, y_pred)
+rmse = np.sqrt(mean_squared_error(y_valid, y_pred))
 
