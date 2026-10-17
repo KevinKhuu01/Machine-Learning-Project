@@ -1,7 +1,7 @@
 # Naive Benchmark 
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error 
-from data_pipeline import get_model_data
+from src.data_pipeline import get_model_data
 
 X_train, X_valid, X_test, y_train, y_valid, y_test = get_model_data()
 

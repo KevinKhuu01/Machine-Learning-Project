@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from data_pipeline import get_model_data
+from src.data_pipeline import get_model_data
 
 linear_model = LinearRegression()
 
