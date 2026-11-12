@@ -2,10 +2,19 @@ from src.data_pipeline import get_day_ahead_model_data
 from src.models.naive_benchmark import *
 from src.models.linear_regression import *
 from src.models.decision_tree import *
+from src.evaluate import eval_model
+
+def build_models(X_train, X_valid, y_train, y_valid):
+    results = {}
+    results["naive_benchmark"] = eval_model(y_valid, model_naive_benchmark(X_valid))
+    results["linear_regression"] = eval_model(y_valid, model_linear_regression(X_valid, X_train, y_train))
+    results["decision_tree"] = eval_model(y_valid, model_decision_tree(X_valid, X_train, y_train))
+
+    return results
 
 def main():
-    # Load the model-ready training, validation, and test datasets
     X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
+    results = build_models(X_train, X_valid, y_train, y_valid)
 
     print("\n-----------------------------------")
 
@@ -23,14 +32,10 @@ def main():
     print("\nMean vehicle volume per interval (validation):", y_valid.to_numpy().mean())
 
     print("\n-----------------------------------")
-    naive_mae, naive_rmse = naive_error()
-    lin_mse, lin_rmse = linear_regression_error()
-    dt_mae, dt_rmse = decision_tree_error()
 
     print("\nResults:")
-    print(f"\nNaive Benchmark: \nMAE = {naive_mae:.3f} \t RMSE = {naive_rmse:.3f}")
-    print(f"\n\nLinear Regression: \nMAE = {lin_mse:.3f} \t RMSE = {lin_rmse:.3f}")
-    print(f"\n\nDecision Tree: \nMAE = {dt_mae:.3f} \t RMSE = {dt_rmse:.3f}")
+    for name, (mae, rmse) in results.items():
+        print(f"\n{name}: \nMAE = {mae:.2f} \t RMSE = {rmse:.2f}")
     
     print("\n-----------------------------------")
 
