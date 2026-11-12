@@ -6,13 +6,13 @@
 
 # Imports
 from sklearn.linear_model import LinearRegression
-from src.data_pipeline import get_model_data
+from src.data_pipeline import get_day_ahead_model_data
 from src.evaluate import eval_model
 
 def model_linear():
         # build models
         linear_model = LinearRegression()
-        X_train, X_valid, X_test, y_train, y_valid, y_test = get_model_data()
+        X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
 
         # train models 
         linear_model.fit(X_train, y_train)

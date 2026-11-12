@@ -1,11 +1,11 @@
-from src.data_pipeline import get_model_data
+from src.data_pipeline import get_day_ahead_model_data
 from src.models.naive_benchmark import *
 from src.models.linear_regression import *
 from src.models.decision_tree import *
 
 def main():
     # Load the model-ready training, validation, and test datasets
-    X_train, X_valid, X_test, y_train, y_valid, y_test = get_model_data()
+    X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
 
     print("\n-----------------------------------")
 
@@ -19,8 +19,8 @@ def main():
 
     print("\n-----------------------------------")
 
-    print("\nMean vehicle volume per interval (training): ", X_train["volume_15min"].mean())
-    print("\nMean vehicle volume per interval (validation): ", X_valid["volume_15min"].mean())
+    print("\nMean vehicle volume per interval (training):", y_train.to_numpy().mean())
+    print("\nMean vehicle volume per interval (validation):", y_valid.to_numpy().mean())
 
     print("\n-----------------------------------")
     naive_mae, naive_rmse = naive_error()
