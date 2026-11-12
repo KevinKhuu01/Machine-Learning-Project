@@ -4,7 +4,7 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VOLUME_PATH = PROJECT_ROOT / "data" / "raw" / "svc_raw_data_volume_2020_2024.csv"
-SPEED_PATH = PROJECT_ROOT / "data" / "raw" / "svc_raw_data_speed_2020_2024.csv"
+SPEED_PATH = PROJECT_ROOT / "data" / "raw" / "svc_raw_data_speed_2020_2024.csv.gz"
 
 
 # ---------------------------------------------------------------------------
