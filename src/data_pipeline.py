@@ -3,19 +3,64 @@ from pathlib import Path
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = PROJECT_ROOT / "data" / "raw" / "svc_raw_data_volume_2020_2024.csv"
+VOLUME_PATH = PROJECT_ROOT / "data" / "raw" / "svc_raw_data_volume_2020_2024.csv"
+SPEED_PATH = PROJECT_ROOT / "data" / "raw" / "svc_raw_data_speed_2020_2024.csv"
 
 
 # ---------------------------------------------------------------------------
-# Loads the raw 15-minute traffic volume dataset from the project's data
-# directory.
+# Loads raw speed data and converts to volume data format
 #
 # Returns:
-#   DataFrame containing the raw traffic observations.
+#   Dataframe with volume data from raw speed data
 # ---------------------------------------------------------------------------
+BASE_COLUMNS = [
+    "count_id", "location_name", "longitude", "latitude",
+    "time_start", "time_end", "direction",
+]
+
+def load_speed_data():
+    header = pd.read_csv(SPEED_PATH, nrows=0).columns
+    speed_bins = [c for c in header if c.startswith("vol_")]
+    df = pd.read_csv(SPEED_PATH, usecols=BASE_COLUMNS + speed_bins)
+
+    # Total volume = sum of all speed bins
+    df["volume_15min"] = df[speed_bins].sum(axis=1)
+    return df[BASE_COLUMNS + ["volume_15min"]]
+
+# ---------------------------------------------------------------------------
+# Concatenates volume dataset with converted raw speed dataset
+#
+# Returns:
+#   Combined dataframe with both datasets
+# ---------------------------------------------------------------------------
+
 def load_data():
-    df = pd.read_csv(DATA_PATH)
-    return df
+    volume_df = pd.read_csv(VOLUME_PATH, usecols=BASE_COLUMNS + ["volume_15min"])
+    speed_df = load_speed_data()
+    df = pd.concat([volume_df, speed_df], ignore_index=True)
+    return drop_sequences_with_gaps(df)
+
+# ---------------------------------------------------------------------------
+# Removes gaps between 15-minute observations. Preprocess_data() requires every sequence to be gap-free.
+#
+# Returns:
+#   DataFrame without the sequences that contain gaps.
+# ---------------------------------------------------------------------------
+def drop_sequences_with_gaps(df):
+    good_sequences = []
+    dropped = 0
+
+    for (count_id, direction), sequence in df.groupby(["count_id", "direction"]):
+        times = pd.to_datetime(sequence["time_start"]).sort_values()
+        time_between_rows = times.diff().dropna()
+
+        if (time_between_rows == pd.Timedelta(minutes=15)).all():
+            good_sequences.append(sequence)
+        else:
+            dropped += 1
+
+    print(f"Dropped {dropped} sequences with gaps.")
+    return pd.concat(good_sequences, ignore_index=True)
 
 # ---------------------------------------------------------------------------
 # Prepares the raw traffic data for target and feature creation.
