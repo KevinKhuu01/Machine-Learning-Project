@@ -11,7 +11,6 @@ import time
 def build_models(X_train, X_valid, y_train, y_valid):
     best_k = tune_k(X_train, X_valid, y_train, y_valid)
     best_l2_alpha = tune_l2_alpha(X_train, X_valid, y_train, y_valid)
-    best_nn_alpha = tune_nn_alpha(X_train, X_valid, y_train, y_valid)
     results = {}
 
     results["naive_benchmark"] = eval_model(y_valid, model_naive_benchmark(X_valid))
@@ -19,7 +18,7 @@ def build_models(X_train, X_valid, y_train, y_valid):
     results["decision_tree"] = eval_model(y_valid, model_decision_tree(X_valid, X_train, y_train))
     results["knn"] = eval_model(y_valid, model_knn(best_k, X_valid, X_train, y_train))
     results["l2_regularization"] = eval_model(y_valid, model_l2_ridge(best_l2_alpha, X_valid, X_train, y_train))
-    results["neural_network"] = eval_model(y_valid, model_neural_network(best_nn_alpha, X_valid, X_train, y_train))
+    results["neural_network"] = eval_model(y_valid, model_neural_network(X_valid, X_train, y_train))
 
     return results
 

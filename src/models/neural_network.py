@@ -1,20 +1,46 @@
 from sklearn.neural_network import MLPRegressor
-from sklearn.pipeline import make_pipeline 
-from sklearn.preprocessing import StandardScaler       
+from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import loguniform      
 from src.evaluate import eval_model  
 
-def model_neural_network(a, X_valid, X_train, y_train):
-    nn_model =make_pipeline(StandardScaler(), MLPRegressor(alpha=a, max_iter=500, random_state=42)) 
-    nn_model.fit(X_train, y_train)
-    y_pred = nn_model.predict(X_valid)
+def model_neural_network(X_valid, X_train, y_train):
+    pipe = Pipeline([
+        ("scaler", StandardScaler()),
+        ("mlp", MLPRegressor(
+            max_iter=1000,
+            early_stopping=True,
+            n_iter_no_change=15,
+            random_state=42,
+        )),
+    ])
 
-    return y_pred
+    # Scale the target too; MLPs train poorly on large-valued y
+    model = TransformedTargetRegressor(regressor=pipe, transformer=StandardScaler())
 
-def tune_nn_alpha(X_train, X_valid, y_train, y_valid):
-    best_alpha, best_mae = None, float("inf")
-    for a in [0.0001, 0.001, 0.01, 0.1, 1]:
-        mae, _ = eval_model(y_valid, model_neural_network(a, X_valid, X_train, y_train))
-        if mae < best_mae:
-            best_alpha, best_mae = a, mae
+    param_dist = {
+        "regressor__mlp__hidden_layer_sizes": [(32,), (64,), (128,), (64, 32), (128, 64), (128, 64, 32)],
+        "regressor__mlp__alpha": loguniform(1e-5, 1e0),
+        "regressor__mlp__learning_rate_init": loguniform(1e-4, 1e-2),
+        "regressor__mlp__activation": ["relu", "tanh"],
+        "regressor__mlp__batch_size": [32, 64, 128, 256],
+    }
 
-    return best_alpha
+    search = RandomizedSearchCV(
+        model,
+        param_dist,
+        n_iter=40,
+        cv=5,
+        scoring="neg_mean_absolute_error",  # matches your MAE metric
+        n_jobs=-1,
+        random_state=42,
+    )
+    search.fit(X_train, y_train)
+
+    print("Best params:", search.best_params_)
+    print("CV MAE:", -search.best_score_)
+
+    return search.predict(X_valid)
