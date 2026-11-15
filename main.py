@@ -6,26 +6,29 @@ from src.models.knn import *
 from src.models.l2_regularizer import *
 from src.models.neural_network import *
 from src.evaluate import eval_model
+from src.visualize import plot_all
 import time
 
 def build_models(X_train, X_valid, y_train, y_valid):
     best_k = tune_k(X_train, X_valid, y_train, y_valid)
     best_l2_alpha = tune_l2_alpha(X_train, X_valid, y_train, y_valid)
-    results = {}
 
-    results["naive_benchmark"] = eval_model(y_valid, model_naive_benchmark(X_valid))
-    results["linear_regression"] = eval_model(y_valid, model_linear_regression(X_valid, X_train, y_train))
-    results["decision_tree"] = eval_model(y_valid, model_decision_tree(X_valid, X_train, y_train))
-    results["knn"] = eval_model(y_valid, model_knn(best_k, X_valid, X_train, y_train))
-    results["l2_regularization"] = eval_model(y_valid, model_l2_ridge(best_l2_alpha, X_valid, X_train, y_train))
-    results["neural_network"] = eval_model(y_valid, model_neural_network(X_valid, X_train, y_train))
+    preds = {
+        "naive_benchmark": model_naive_benchmark(X_valid),
+        "linear_regression": model_linear_regression(X_valid, X_train, y_train),
+        "decision_tree": model_decision_tree(X_valid, X_train, y_train),
+        "knn": model_knn(best_k, X_valid, X_train, y_train),
+        "l2_regularization": model_l2_ridge(best_l2_alpha, X_valid, X_train, y_train),
+        "neural_network": model_neural_network(X_valid, X_train, y_train),
+    }
+    results = {name: eval_model(y_valid, p) for name, p in preds.items()}
 
-    return results
+    return results, preds
 
 def main():
     start = time.perf_counter() 
     X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
-    results = build_models(X_train, X_valid, y_train, y_valid)
+    results, preds = build_models(X_train, X_valid, y_train, y_valid)
 
     print("\n-----------------------------------")
 
@@ -57,6 +60,8 @@ def main():
     print(f"\nElapsed time: {minutes_elapsed} min {seconds_elapsed :.1f} sec")
 
     print("\n-----------------------------------")
+
+    plot_all(y_valid, results, preds) 
 
 if __name__ == "__main__":
     main()
