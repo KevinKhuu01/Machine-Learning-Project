@@ -8,6 +8,29 @@ from scipy.stats import loguniform
 from src.evaluate import eval_model  
 
 def model_neural_network(X_valid, X_train, y_train):
+
+    """
+    Neural network regressor tuned with randomized search
+    Tuning procedure:
+    RandomizedSearchCV, 5 fold cross validation on the training set only. Optimizes MAE.
+    The best configuration is refit on all of X_train, then predicts on X_valid.
+    
+    Preprocessing (refit inside each fold, so no data leakage):
+    - StandardScaler for X (features)
+    - StandardScaler for y via TransformedTargetRegressor 
+    
+    Search space:
+        hidden_layer_sizes: [(32,), (64,), (128,), (64, 32), (128, 64), (128, 64, 32)] - Number of neurons in each layer
+        alpha: loguniform(1e-5, 1e0) - L2 penalty
+        learning_rate_init: loguniform(1e-4, 1e-2) - Initial learning rate
+        activation: ["relu", "tanh"] - Activation function
+        batch_size: [32, 64, 128, 256] - Number of samples per gradient update
+    
+    Fixed settings: max_iter=1000, early_stopping=True, n_iter_no_change=15, random_state=42
+
+    Returns:
+        predictions on the validation set (X_valid)
+    """
     pipe = Pipeline([
         ("scaler", StandardScaler()),
         ("mlp", MLPRegressor(

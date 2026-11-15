@@ -5,6 +5,24 @@ from src.evaluate import eval_model
 
 
 def model_l2_ridge(a, X_valid, X_train, y_train):
+    """
+    Ridge (L2-regularized) linear regression.
+
+    Preprocessing:
+        StandardScaler on features, fit on X_train only (inside the pipeline).
+        Scaling matters here because the L2 penalty is applied equally to all
+        coefficients, so features need to be on the same scale.
+
+    Parameters:
+        a:       Ridge regularization strength (alpha). Larger = stronger shrinkage.
+        X_valid: Features to predict.
+        X_train: Training features.
+        y_train: Training target.
+
+    Returns:
+        Predictions for X_valid (numpy array).
+    """
+    
     l2_model = make_pipeline(StandardScaler(), Ridge(alpha=a))
     l2_model.fit(X_train, y_train)
     y_pred = l2_model.predict(X_valid)

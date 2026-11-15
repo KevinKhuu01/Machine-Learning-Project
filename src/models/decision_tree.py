@@ -2,6 +2,24 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV
 
 def model_decision_tree(X_valid, X_train, y_train):
+    """Decision tree regressor tuned with grid search
+    
+    Tuning procedure:
+    GridSearchCV, 5 fold cross validation on the training set only.
+    (X_valid is never used for selection). Optimizes RMSE.
+    The best 
+    
+    Search grid (864 candidates, 4320 fits):
+        max_depth: [3, 5, 7, 10, 15, None] - Max tree depth; None = unlimited
+        min_samples_split: [2, 5, 10, 20] - Minimum samples required to split node
+        min_samples_leaf: [1, 2, 5, 10] - Minimum samples required per leaf node (smooths our predictions)
+        _features: [None, "sqrt", 0.5] - Number of features to consider when looking for best split
+        ccp_alpha: [0.0, 0.001, 0.01] - Complexity parameter for Minimal Cost-Complexity Pruning (MCCP)
+        
+        Fixed settings: random_state=42, cv=5, scoring='neg_mean_squared_error'
+        
+        Returns: 
+            predictions on the validation set (X_valid)"""
     param_grid = {
         'max_depth': [3, 5, 7, 10, 15, None],
         'min_samples_split': [2, 5, 10, 20],
