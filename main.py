@@ -8,6 +8,7 @@ from src.models.neural_network import *
 from src.evaluate import eval_model
 from src.visualize import plot_all
 import time
+import threading
 
 def build_models(X_train, X_valid, y_train, y_valid):
     best_k = tune_k(X_train, X_valid, y_train, y_valid)
@@ -26,10 +27,11 @@ def build_models(X_train, X_valid, y_train, y_valid):
     return results, preds
 
 def main():
-    start = time.perf_counter() 
-    X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
-    results, preds = build_models(X_train, X_valid, y_train, y_valid)
+    start = time.perf_counter()
 
+    X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
+    results, preds = build_models(X_train, X_valid, y_train, y_valid)    
+         
     print("\n-----------------------------------")
 
     print("\nData pipeline completed successfully.")
@@ -50,14 +52,20 @@ def main():
     print("\nResults:")
     for name, (mae, rmse) in results.items():
         print(f"\n{name}: \nMAE = {mae:.2f} \t RMSE = {rmse:.2f}")
-    
+
     print("\n-----------------------------------")
 
+    print("\nNeural Network Seeds:")
+
+    run_neural_network_seeds(X_train, y_train, X_valid, y_valid)
+
+    print("\n-----------------------------------")
+    
     end = time.perf_counter()
     elapsed_time = end-start
     minutes_elapsed = (int)(elapsed_time // 60)
     seconds_elapsed =  elapsed_time % 60
-    print(f"\nElapsed time: {minutes_elapsed} min {seconds_elapsed :.1f} sec")
+    print(f"\n\rElapsed time: {minutes_elapsed} min {seconds_elapsed :.1f} sec", end="", flush=True)
 
     print("\n-----------------------------------")
 
