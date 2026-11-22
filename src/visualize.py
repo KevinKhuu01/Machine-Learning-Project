@@ -1,8 +1,5 @@
-import os
 import numpy as np
 import matplotlib.pyplot as plt
-
-OUT_DIR = "figures"
 
 
 def _flat(a):
@@ -10,12 +7,7 @@ def _flat(a):
     return np.asarray(a).ravel()
 
 
-def _save(fig, name):
-    os.makedirs(OUT_DIR, exist_ok=True)
-    fig.savefig(os.path.join(OUT_DIR, name), dpi=150, bbox_inches="tight")
-
-
-def plot_metric_comparison(results):
+def plot_metric_comparison(results, set_name="validation"):
     names = list(results.keys())
     mae = [results[n][0] for n in names]
     rmse = [results[n][1] for n in names]
@@ -28,12 +20,11 @@ def plot_metric_comparison(results):
     ax.set_xticks(x)
     ax.set_xticklabels(names, rotation=30, ha="right")
     ax.set_ylabel("Error (vehicles per interval)")
-    ax.set_title("Model comparison on validation set")
+    ax.set_title(f"Model comparison on {set_name} set")
     ax.legend()
-    _save(fig, "metric_comparison.png")
 
 
-def plot_pred_vs_actual(y_valid, preds):
+def plot_pred_vs_actual(y_valid, preds, set_name="validation"):
     y = _flat(y_valid)
     n = len(preds)
     cols = 3
@@ -51,25 +42,23 @@ def plot_pred_vs_actual(y_valid, preds):
     for ax in axes[n:]:
         ax.axis("off")
 
-    fig.suptitle("Predicted vs actual")
+    fig.suptitle(f"Predicted vs actual ({set_name} set)")
     fig.tight_layout()
-    _save(fig, "pred_vs_actual.png")
 
 
-def plot_time_series(y_valid, preds, n_points=500, models=None):
+def plot_time_series(y_valid, preds, n_points=500, models=None, set_name="validation"):
     models = models or ["naive_benchmark", "decision_tree", "neural_network"]
     fig, ax = plt.subplots(figsize=(13, 5))
     ax.plot(_flat(y_valid)[:n_points], color="black", lw=2, label="Actual")
     for m in models:
         ax.plot(_flat(preds[m])[:n_points], lw=1, alpha=0.8, label=m)
-    ax.set_xlabel("Interval (validation set)")
+    ax.set_xlabel(f"Interval ({set_name} set)")
     ax.set_ylabel("Vehicle volume")
-    ax.set_title(f"First {n_points} validation intervals")
+    ax.set_title(f"First {n_points} {set_name} intervals")
     ax.legend()
-    _save(fig, "time_series.png")
 
 
-def plot_residuals(y_valid, preds):
+def plot_residuals(y_valid, preds, set_name="validation"):
     y = _flat(y_valid)
     names = list(preds.keys())
     resid = [y - _flat(preds[n]) for n in names]
@@ -80,19 +69,18 @@ def plot_residuals(y_valid, preds):
     ax.set_xticklabels(names, rotation=30, ha="right")
     ax.axhline(0, color="red", ls="--", lw=1)
     ax.set_ylabel("Residual (actual - predicted)")
-    ax.set_title("Residual distribution by model")
-    _save(fig, "residuals.png")
+    ax.set_title(f"Residual distribution by model ({set_name} set)")
 
 
-def plot_all(y_valid, results, preds):
+def plot_all(y_valid, results, preds, set_name="validation"):
     # Sanity check: every prediction should match the length of y_valid
     n = len(_flat(y_valid))
     for name, p in preds.items():
         if len(_flat(p)) != n:
             raise ValueError(f"{name}: got {len(_flat(p))} predictions, expected {n}")
 
-    plot_metric_comparison(results)
-    plot_pred_vs_actual(y_valid, preds)
-    plot_time_series(y_valid, preds)
-    plot_residuals(y_valid, preds)
+    plot_metric_comparison(results, set_name)
+    plot_pred_vs_actual(y_valid, preds, set_name)
+    plot_time_series(y_valid, preds, set_name=set_name)
+    plot_residuals(y_valid, preds, set_name)
     plt.show()

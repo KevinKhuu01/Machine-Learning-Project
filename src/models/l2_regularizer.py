@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from src.evaluate import eval_model
 
 
-def model_l2_ridge(a, X_valid, X_train, y_train):
+def model_l2_ridge(a, X_valid, X_train, y_train, X_test=None):
     """
     Ridge (L2-regularized) linear regression.
 
@@ -25,14 +25,16 @@ def model_l2_ridge(a, X_valid, X_train, y_train):
     
     l2_model = make_pipeline(StandardScaler(), Ridge(alpha=a))
     l2_model.fit(X_train, y_train)
-    y_pred = l2_model.predict(X_valid)
 
-    return y_pred
+    y_valid = l2_model.predict(X_valid)
+    y_test = l2_model.predict(X_test) if X_test is not None else None
+    
+    return y_valid, y_test
 
 def tune_l2_alpha(X_train, X_valid, y_train, y_valid):
     best_a, best_mae = None, float("inf") # set best_mae to infinity to start. first iteration of loop will automatically be the best_mae
     for a in  [0.01, 0.1, 1, 10, 100, 1000, 10000]:
-        y_pred = model_l2_ridge(a, X_valid, X_train, y_train)
+        y_pred, _ = model_l2_ridge(a, X_valid, X_train, y_train)
         mae, rmse = eval_model(y_valid, y_pred)
         if mae < best_mae:
             best_a, best_mae = a, mae

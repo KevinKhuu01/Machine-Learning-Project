@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import t
 
-def model_neural_network(X_valid, X_train, y_train):
+def model_neural_network(X_valid, X_train, y_train, X_test):
     neural_network = MLPRegressor(max_iter= 1000, early_stopping=True, n_iter_no_change=15, random_state=42)
 
     # Scale input features before passing to network
@@ -55,18 +55,18 @@ def model_neural_network(X_valid, X_train, y_train):
     print(f"Mean CV MAE (5 folds):  {-search.best_score_:.4f}")
 
     # Predict the validation targets, in the original vehicle-count units.
-    y_preds = search.predict(X_valid)
-    return y_preds
+    y_valid = search.predict(X_valid)
+    y_test = search.predict(X_test)
+    return y_valid, y_test
 
 
-
-def run_neural_network_seeds(X_train, y_train, X_valid, y_valid):
+def run_neural_network_seeds(X_train, y_train, X_valid, y_valid, X_test, y_test):
     results = []
-    actual = np.asarray(y_valid, dtype=float)
+    valid_actual = np.asarray(y_valid, dtype=float)
+    test_actual = np.asarray(y_test, dtype=float)
 
     print("Neural Network: 10 Seeds, Fixed Hyperparameters", flush=True)
-    print("RMSE is pooled across all validation predictions.", flush=True)
-    print(f"{'Seed':<8}{'MAE':>12}{'RMSE':>12}", flush=True)
+    print("RMSE is pooled across all predictions in each set.", flush=True)
 
     # Train a new network for each seed using the same data and settings.
     for seed in range(10):
@@ -98,11 +98,14 @@ def run_neural_network_seeds(X_train, y_train, X_valid, y_valid):
 
         # predict and find error
         model.fit(X_train, y_train) 
-        predictions = model.predict(X_valid)
-        mae, rmse = eval_model(actual, predictions)
-
-        results.append({"seed": seed, "MAE": mae, "RMSE": rmse})
-        print(f"{seed:<8}{mae:>12.4f}{rmse:>12.4f}", flush=True)
+        validation_mae, validation_rmse = eval_model(valid_actual, model.predict(X_valid))
+        test_mae, test_rmse = eval_model(test_actual, model.predict(X_test))
+        results.append({
+            "seed": seed,
+            "validation_MAE": validation_mae, "validation_RMSE": validation_rmse,
+            "test_MAE": test_mae, "test_RMSE": test_rmse,
+        })
+        print(f"Seed {seed}: validation MAE={validation_mae:.4f}, validation RMSE={validation_rmse:.4f}, " f"test MAE={test_mae:.4f}, test RMSE={test_rmse:.4f}", flush=True)
 
     runs = pd.DataFrame(results) 
 
@@ -112,7 +115,7 @@ def run_neural_network_seeds(X_train, y_train, X_valid, y_valid):
     critical_value = t.ppf(0.975, df=number_of_runs - 1)
 
     print("\nSummary across seeds (approximate 95% CI for the mean)")
-    for metric in ["MAE", "RMSE"]:
+    for metric in ["validation_MAE", "validation_RMSE", "test_MAE", "test_RMSE"]:
         mean = runs[metric].mean()
         standard_deviation = runs[metric].std(ddof=1)
         standard_error = standard_deviation / np.sqrt(number_of_runs)

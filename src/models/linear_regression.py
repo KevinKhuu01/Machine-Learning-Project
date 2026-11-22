@@ -7,9 +7,11 @@
 # Imports
 from sklearn.linear_model import LinearRegression
 
-def model_linear_regression(X_valid, X_train, y_train):
+def model_linear_regression(X_valid, X_train, y_train, X_test):
         linear_model = LinearRegression()
         linear_model.fit(X_train, y_train)
-        y_pred = linear_model.predict(X_valid)
 
-        return y_pred
+        y_valid = linear_model.predict(X_valid)
+        y_test = linear_model.predict(X_test)
+
+        return y_valid, y_test

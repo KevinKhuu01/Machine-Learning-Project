@@ -29,7 +29,7 @@ def export_knn_tuning(X_train, X_valid, y_train, y_valid):
     records = []
 
     for k in k_values:
-        predictions = model_knn(k, X_valid, X_train, y_train)
+        predictions, _ = model_knn(k, X_valid, X_train, y_train)
         mae, rmse = eval_model(y_valid, predictions)
 
         records.append({
@@ -53,7 +53,7 @@ def export_ridge_tuning(X_train, X_valid, y_train, y_valid):
     records = []
 
     for alpha in alpha_values:
-        predictions = model_l2_ridge(
+        predictions, _ = model_l2_ridge(
             alpha, X_valid, X_train, y_train
         )
         mae, rmse = eval_model(y_valid, predictions)

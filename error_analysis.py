@@ -7,11 +7,11 @@ from src.data_pipeline import get_day_ahead_model_data
 
 
 # Load the same training and validation data used in main.py
-X_train, X_valid, _, y_train, y_valid, _ = get_day_ahead_model_data()
+X_train, X_valid, X_test, y_train, y_valid, y_test = get_day_ahead_model_data()
 
 # Generate predictions for all six models
-results, predictions = build_models(
-    X_train, X_valid, y_train, y_valid
+validation_results, test_results, predictions, test_predictions = build_models(
+    X_train, X_valid, X_test, y_train, y_valid, y_test
 )
 
 actual = y_valid.to_numpy()

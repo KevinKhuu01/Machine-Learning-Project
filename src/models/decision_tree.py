@@ -1,7 +1,7 @@
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV
 
-def model_decision_tree(X_valid, X_train, y_train):
+def model_decision_tree(X_valid, X_train, y_train, X_test):
     """Decision tree regressor tuned with grid search
     
     Tuning procedure:
@@ -20,6 +20,7 @@ def model_decision_tree(X_valid, X_train, y_train):
         
         Returns: 
             predictions on the validation set (X_valid)"""
+    
     param_grid = {
         'max_depth': [3, 5, 7, 10, 15, None],
         'min_samples_split': [2, 5, 10, 20],
@@ -29,11 +30,18 @@ def model_decision_tree(X_valid, X_train, y_train):
     }
 
     
-    search = GridSearchCV(DecisionTreeRegressor(random_state=42), param_grid, cv=5,
-                           scoring='neg_mean_squared_error', n_jobs=-1)
+    search = GridSearchCV(
+        DecisionTreeRegressor(random_state=42), 
+        param_grid, 
+        cv=5,
+        scoring='neg_mean_squared_error', 
+        n_jobs=-1)
+    
     search.fit(X_train, y_train)
     
     print(f"Best parameters: {search.best_params_}")
     print(f"CV RMSE: {-search.best_score_}")
 
-    return search.predict(X_valid) 
+    y_valid = search.predict(X_valid) 
+    y_test = search.predict(X_test)
+    return y_valid, y_test
