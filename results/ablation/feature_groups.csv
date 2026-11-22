@@ -1,0 +1,8 @@
+feature_group_removed,features_removed,ridge_MAE_change,knn_MAE_change,neural_network_MAE_change
+morning_9_to_11,8,0.463,0.327,0.505
+midday_11_to_13,8,0.069,0.047,0.118
+afternoon_13_to_15,8,0.100,0.085,0.140
+evening_15_to_17,8,0.708,0.684,0.701
+target_day_of_week,1,-0.084,0.153,0.001
+location_lat_lon,2,-0.001,-0.068,0.000
+direction_one_hot,4,-0.013,-0.027,0.000

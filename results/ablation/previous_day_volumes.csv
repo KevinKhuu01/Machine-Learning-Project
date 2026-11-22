@@ -1,0 +1,4 @@
+model,features_removed,validation_MAE
+ridge,all_32_previous_day_volume_features,44.011
+knn,all_32_previous_day_volume_features,38.281
+neural_network,all_32_previous_day_volume_features,37.721

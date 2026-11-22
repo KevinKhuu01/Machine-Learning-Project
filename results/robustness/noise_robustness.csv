@@ -1,0 +1,9 @@
+model,noise_level,validation_MAE
+ridge,0,5.876
+decision_tree,0,7.197
+knn,0,6.215
+neural_network,0,5.760
+ridge,0.5,10.389
+decision_tree,0.5,15.024
+knn,0.5,8.826
+neural_network,0.5,9.634

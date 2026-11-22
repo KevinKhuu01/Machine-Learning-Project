@@ -1,0 +1,5 @@
+model,noise_level,MAE_increase_percent
+ridge,0.1,5.6
+decision_tree,0.1,13.0
+knn,0.1,4.9
+neural_network,0.1,4.6
